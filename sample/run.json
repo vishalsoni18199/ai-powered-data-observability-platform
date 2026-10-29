@@ -1,0 +1,11 @@
+{
+  "pipeline_id": "oracle_sales_to_impala",
+  "run_id": "sqoop-2026-10-28T01:00:00Z",
+  "status": "success",
+  "started_at": "2026-10-28T01:00:00Z",
+  "finished_at": "2026-10-28T01:12:30Z",
+  "rows_read": 1050000,
+  "rows_written": 1050000,
+  "duration_seconds": 750,
+  "source": "sqoop"
+}

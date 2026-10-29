@@ -1,0 +1,27 @@
+pipelines:
+  - pipeline_id: oracle_sales_to_impala
+    description: Daily Oracle sales extraction via Sqoop into Impala
+    expected_interval_minutes: 1440
+    # Query must return a numeric Unix epoch timestamp (seconds) for the latest loaded record.
+    freshness_timestamp_sql: >-
+      SELECT unix_timestamp(max(reporting_timestamp)) FROM analytics.sales_fact
+    # Each quality check is a read-only Impala query returning exactly one numeric value.
+    quality_checks:
+      - name: sales_row_count_nonzero
+        metric: row_count
+        sql: SELECT count(*) FROM analytics.sales_fact
+        operator: <=
+        threshold: 0
+        severity: critical
+      - name: customer_key_null_rate
+        metric: customer_key_null_rate_pct
+        sql: >-
+          SELECT CASE WHEN count(*) = 0 THEN 100.0
+                      ELSE 100.0 * sum(CASE WHEN customer_key IS NULL THEN 1 ELSE 0 END) / count(*)
+                 END
+          FROM analytics.sales_fact
+        operator: ">"
+        threshold: 1.0
+        severity: warning
+    recipients:
+      - data-engineering@example.com
